@@ -22,10 +22,8 @@
             flex-direction: column;
             min-height: 100vh;
             position: relative;
-            overflow: hidden;
         }
 
-        /* Nowy efekt tła - gwiezdny pył */
         body::before {
             content: '';
             position: fixed;
@@ -39,8 +37,10 @@
                 radial-gradient(ellipse at 100px 100px, rgba(255, 204, 0, 0.5) 1px, transparent 1px),
                 radial-gradient(ellipse at 250px 250px, rgba(255, 204, 0, 0.4) 1px, transparent 1px),
                 radial-gradient(ellipse at 400px 400px, rgba(255, 204, 0, 0.6) 1px, transparent 1px),
-                radial-gradient(ellipse at 550px 550px, rgba(255, 204, 0, 0.3) 1px, transparent 1px);
-            background-size: 800px 800px, 600px 600px, 700px 700px, 900px 900px;
+                radial-gradient(ellipse at 550px 550px, rgba(255, 204, 0, 0.3) 1px, transparent 1px),
+                radial-gradient(ellipse at 700px 700px, rgba(255, 204, 0, 0.7) 1px, transparent 1px),
+                radial-gradient(ellipse at 850px 850px, rgba(255, 204, 0, 0.5) 1px, transparent 1px);
+            background-size: 500px 500px, 450px 450px, 600px 600px, 700px 700px, 550px 550px, 750px 750px;
             animation: star-move 20s linear infinite;
             z-index: -1;
         }
