@@ -22,51 +22,22 @@
             flex-direction: column;
             min-height: 100vh;
             position: relative;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
-        body::before {
-            content: '';
+        body::-webkit-scrollbar {
+            display: none;
+
+        }
+
+        #bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent;
-            background-image:
-                radial-gradient(ellipse at 10% 20%, rgba(255, 204, 0, 0.5) 1px, transparent 1px),
-                radial-gradient(ellipse at 30% 80%, rgba(255, 204, 0, 0.4) 1px, transparent 1px),
-                radial-gradient(ellipse at 50% 50%, rgba(255, 204, 0, 0.6) 1px, transparent 1px),
-                radial-gradient(ellipse at 70% 30%, rgba(255, 204, 0, 0.3) 1px, transparent 1px),
-                radial-gradient(ellipse at 90% 60%, rgba(255, 204, 0, 0.7) 1px, transparent 1px),
-                radial-gradient(ellipse at 20% 70%, rgba(255, 204, 0, 0.5) 1px, transparent 1px),
-                radial-gradient(ellipse at 80% 10%, rgba(255, 204, 0, 0.4) 1px, transparent 1px),
-                radial-gradient(ellipse at 40% 90%, rgba(255, 204, 0, 0.6) 1px, transparent 1px),
-                radial-gradient(ellipse at 60% 40%, rgba(255, 204, 0, 0.7) 1px, transparent 1px),
-                radial-gradient(ellipse at 100% 50%, rgba(255, 204, 0, 0.3) 1px, transparent 1px),
-                radial-gradient(ellipse at 15% 55%, rgba(255, 204, 0, 0.6) 1px, transparent 1px),
-                radial-gradient(ellipse at 85% 75%, rgba(255, 204, 0, 0.5) 1px, transparent 1px),
-                radial-gradient(ellipse at 35% 25%, rgba(255, 204, 0, 0.4) 1px, transparent 1px),
-                radial-gradient(ellipse at 65% 85%, rgba(255, 204, 0, 0.7) 1px, transparent 1px),
-                radial-gradient(ellipse at 5% 45%, rgba(255, 204, 0, 0.5) 1px, transparent 1px),
-                radial-gradient(ellipse at 95% 15%, rgba(255, 204, 0, 0.6) 1px, transparent 1px),
-                radial-gradient(ellipse at 25% 95%, rgba(255, 204, 0, 0.3) 1px, transparent 1px),
-                radial-gradient(ellipse at 55% 5%, rgba(255, 204, 0, 0.7) 1px, transparent 1px),
-                radial-gradient(ellipse at 75% 95%, rgba(255, 204, 0, 0.4) 1px, transparent 1px),
-                radial-gradient(ellipse at 45% 15%, rgba(255, 204, 0, 0.6) 1px, transparent 1px),
-                radial-gradient(ellipse at 85% 45%, rgba(255, 204, 0, 0.5) 1px, transparent 1px);
-            background-size: 500px 500px, 450px 450px, 600px 600px, 700px 700px, 550px 550px, 750px 750px, 400px 400px, 650px 650px, 800px 800px, 500px 500px, 700px 700px, 550px 550px, 800px 800px, 600px 600px, 450px 450px, 750px 750px, 500px 500px, 650px 650px, 400px 400px, 550px 550px, 700px 700px;
-            animation: star-move 20s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes star-move {
-            from {
-                background-position: 0 0;
-            }
-
-            to {
-                background-position: 800px 800px;
-            }
+            z-index: -2;
         }
 
         .page-container {
@@ -76,6 +47,8 @@
             box-sizing: border-box;
             text-align: center;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-avatar {
@@ -490,6 +463,7 @@
 </head>
 
 <body>
+    <canvas id="bg-canvas"></canvas>
     <div class="page-container">
         <header class="profile-header">
             <div class="profile-avatar">
@@ -838,6 +812,62 @@
 
             updateAllThumbnails();
         });
+
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        const dots = [];
+        const numDots = 150;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function createDots() {
+            for (let i = 0; i < numDots; i++) {
+                dots.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 0.5,
+                    color: `rgba(255, 255, 0, ${Math.random() * 0.6 + 0.2})`
+                });
+            }
+        }
+
+        function drawDots() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            dots.forEach(dot => {
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
+                ctx.fillStyle = dot.color;
+                ctx.fill();
+            });
+        }
+
+        function updateDots() {
+            dots.forEach(dot => {
+                dot.x += dot.vx;
+                dot.y += dot.vy;
+
+                if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
+                if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
+            });
+        }
+
+        function animate() {
+            updateDots();
+            drawDots();
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = function() {
+            createDots();
+            animate();
+        };
     </script>
 </body>
 
