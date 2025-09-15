@@ -460,6 +460,154 @@
             }
         }
     </style>
+    <script defer>
+        document.addEventListener('DOMContentLoaded', () => {
+            const kickIframe = document.getElementById('kick-stream');
+            const twitchIframe = document.getElementById('twitch-stream');
+            const currentHostname = 'frajgo.pl';
+            const kickChannel = 'frajgo';
+            const twitchChannel = 'frajgo_';
+
+            if (kickIframe) {
+                const kickStreamUrl = `https://player.kick.com/${kickChannel}?parent=${currentHostname}`;
+                kickIframe.src = kickStreamUrl;
+            }
+
+            if (twitchIframe) {
+                const twitchStreamUrl = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${currentHostname}&muted=false`;
+                twitchIframe.src = twitchStreamUrl;
+            }
+
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            function copyTextToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                } catch (err) {
+                    console.error('Błąd podczas kopiowania tekstu: ', err);
+                }
+                document.body.removeChild(textArea);
+            }
+
+            function displayCopyMessage(messageText) {
+                const container = document.getElementById('copy-message-container');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'copy-message';
+                messageDiv.textContent = messageText;
+
+                container.appendChild(messageDiv);
+
+                setTimeout(() => {
+                    messageDiv.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    messageDiv.classList.remove('show');
+                    setTimeout(() => {
+                        container.removeChild(messageDiv);
+                    }, 300);
+                }, 1500);
+            }
+
+            document.querySelectorAll('.copy-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const code = event.currentTarget.getAttribute('data-code');
+
+                    copyTextToClipboard(code);
+
+                    displayCopyMessage('Kod został skopiowany!');
+                });
+            });
+
+            function updateAllThumbnails() {
+                const youtubeLinks = document.querySelectorAll('.youtube-link');
+                youtubeLinks.forEach(link => {
+                    const url = link.href;
+                    const thumbnail = link.querySelector('.youtube-thumbnail');
+                    const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]+)/;
+                    const match = url.match(regex);
+
+                    if (match && match[1]) {
+                        const videoId = match[1];
+                        const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                        if (thumbnail) {
+                            thumbnail.src = thumbnailUrl;
+                        }
+                    } else {
+                        console.error("Niepoprawny link do YouTube.");
+                        if (thumbnail) {
+                           thumbnail.src = "https://placehold.co/480x360/e5e7eb/6b7280?text=Niepoprawny+link";
+                        }
+                    }
+                });
+            }
+
+            updateAllThumbnails();
+
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            const dots = [];
+            const numDots = 150;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            function createDots() {
+                for (let i = 0; i < numDots; i++) {
+                    dots.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 0.5,
+                        color: `rgba(255, 255, 0, ${Math.random() * 0.6 + 0.2})`
+                    });
+                }
+            }
+
+            function drawDots() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                dots.forEach(dot => {
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
+                    ctx.fillStyle = dot.color;
+                    ctx.fill();
+                });
+            }
+
+            function updateDots() {
+                dots.forEach(dot => {
+                    dot.x += dot.vx;
+                    dot.y += dot.vy;
+
+                    if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
+                    if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
+                });
+            }
+
+            function animate() {
+                updateDots();
+                drawDots();
+                requestAnimationFrame(animate);
+            }
+
+            createDots();
+            animate();
+        });
+    </script>
 </head>
 
 <body>
@@ -719,156 +867,6 @@
         </footer>
     </div>
     <div id="copy-message-container"></div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const kickIframe = document.getElementById('kick-stream');
-            const twitchIframe = document.getElementById('twitch-stream');
-            const currentHostname = 'frajgo.pl';
-            const kickChannel = 'frajgo';
-            const twitchChannel = 'frajgo_';
-
-            if (kickIframe) {
-                const kickStreamUrl = `https://player.kick.com/${kickChannel}?parent=${currentHostname}`;
-                kickIframe.src = kickStreamUrl;
-            }
-
-            if (twitchIframe) {
-                const twitchStreamUrl = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${currentHostname}&muted=false`;
-                twitchIframe.src = twitchStreamUrl;
-            }
-
-            document.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-            });
-
-            function copyTextToClipboard(text) {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                } catch (err) {
-                    console.error('Błąd podczas kopiowania tekstu: ', err);
-                }
-                document.body.removeChild(textArea);
-            }
-
-            function displayCopyMessage(messageText) {
-                const container = document.getElementById('copy-message-container');
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'copy-message';
-                messageDiv.textContent = messageText;
-
-                container.appendChild(messageDiv);
-
-                setTimeout(() => {
-                    messageDiv.classList.add('show');
-                }, 10);
-
-                setTimeout(() => {
-                    messageDiv.classList.remove('show');
-                    setTimeout(() => {
-                        container.removeChild(messageDiv);
-                    }, 300);
-                }, 1500);
-            }
-
-            document.querySelectorAll('.copy-button').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const code = event.currentTarget.getAttribute('data-code');
-
-                    copyTextToClipboard(code);
-
-                    displayCopyMessage('Kod został skopiowany!');
-                });
-            });
-
-            function updateAllThumbnails() {
-                const youtubeLinks = document.querySelectorAll('.youtube-link');
-                youtubeLinks.forEach(link => {
-                    const url = link.href;
-                    const thumbnail = link.querySelector('.youtube-thumbnail');
-                    const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]+)/;
-                    const match = url.match(regex);
-
-                    if (match && match[1]) {
-                        const videoId = match[1];
-                        const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-                        if (thumbnail) {
-                            thumbnail.src = thumbnailUrl;
-                        }
-                    } else {
-                        console.error("Niepoprawny link do YouTube.");
-                        if (thumbnail) {
-                           thumbnail.src = "https://placehold.co/480x360/e5e7eb/6b7280?text=Niepoprawny+link";
-                        }
-                    }
-                });
-            }
-
-            updateAllThumbnails();
-        });
-
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        const dots = [];
-        const numDots = 150;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        function createDots() {
-            for (let i = 0; i < numDots; i++) {
-                dots.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 2 + 0.5,
-                    color: `rgba(255, 255, 0, ${Math.random() * 0.6 + 0.2})`
-                });
-            }
-        }
-
-        function drawDots() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            dots.forEach(dot => {
-                ctx.beginPath();
-                ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
-                ctx.fillStyle = dot.color;
-                ctx.fill();
-            });
-        }
-
-        function updateDots() {
-            dots.forEach(dot => {
-                dot.x += dot.vx;
-                dot.y += dot.vy;
-
-                if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
-                if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
-            });
-        }
-
-        function animate() {
-            updateDots();
-            drawDots();
-            requestAnimationFrame(animate);
-        }
-
-        window.onload = function() {
-            createDots();
-            animate();
-        };
-    </script>
 </body>
 
 </html>
